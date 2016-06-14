@@ -1,6 +1,6 @@
 var events = require( 'events' ),
-	util = require( 'util' ),
-	pckg = require( '../package.json' );
+  util = require( 'util' ),
+  pckg = require( '../package.json' )
 
 /**
  * MessageConnectors allow deepstream instances to communicate with each other.
@@ -22,29 +22,27 @@ var events = require( 'events' ),
  *   sender-id to outgoing messages and filter out incoming messages that have the same id
  *
  * - Messaging is the backbone of deepstreams scaling / clustering capabilites. So this needs to be reliable... and fast!
- * 
+ *
  * @param {Object} config Connection configuration.
  *
  * @constructor
  */
 var MessageConnector = function( config ) {
-	this.isReady = false;
-	this.name = pckg.name;
-	this.version = pckg.version;
-
-};
-
-util.inherits( MessageConnector, events.EventEmitter );
+  this.isReady = false
+  this.name = pckg.name
+  this.version = pckg.version
+}
+util.inherits( MessageConnector, events.EventEmitter )
 
 /**
- * Unsubscribes a function as a listener for a topic. 
+ * Unsubscribes a function as a listener for a topic.
  *
  * Often it makes sense to make only one subscription per topic to the messaging
  * middleware and use an eventemitter to notify multiple subscribers of updates
  * for the same topic. This however does mean that the message-connector
  * needs to keep track of the subscribers and unsubscribe from the messaging middleware
  * if all subscribers have unsubscribed
- * 
+ *
  * @param   {String}   topic
  * @param   {Function} callback
  *
@@ -52,8 +50,7 @@ util.inherits( MessageConnector, events.EventEmitter );
  * @returns {void}
  */
 MessageConnector.prototype.unsubscribe = function( topic, callback ) {
-	
-};
+}
 
 /**
  * Adds a function as a listener for a topic.
@@ -69,8 +66,7 @@ MessageConnector.prototype.unsubscribe = function( topic, callback ) {
  * @returns {void}
  */
 MessageConnector.prototype.subscribe = function( topic, callback ) {
-	
-};
+}
 
 /**
  * Publishes a message on a topic
@@ -79,9 +75,9 @@ MessageConnector.prototype.subscribe = function( topic, callback ) {
  * to serialize it. message will look somewhat like this:
  *
  * {
- * 		topic: 'R',
- * 		action: 'P',
- * 		data: [ 'user-54jcvew34', 32, 'zip', 'SE34JN' ]
+ *    topic: 'R',
+ *    action: 'P',
+ *    data: [ 'user-54jcvew34', 32, 'zip', 'SE34JN' ]
  * }
  *
  * @param   {String}   topic
@@ -91,7 +87,6 @@ MessageConnector.prototype.subscribe = function( topic, callback ) {
  * @returns {void}
  */
 MessageConnector.prototype.publish = function( topic, message ) {
-	
-};
+}
 
-module.exports = MessageConnector;
+module.exports = MessageConnector
