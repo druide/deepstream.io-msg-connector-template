@@ -30,9 +30,9 @@ script:
 deploy:
   - provider: s3
     access_key_id:
-      secure: "jfxhIXQM9n6TG5kRvPmKeozaQLwal92yWomXYEd7MjS1XKMYYhUCvbxW5+fg4GBgivfgoKdhKn7oYjP2zVDjQqxgGZ4yHCsRKGHPzlrbz41aSi4T9aCtcV/Tv2hyGIvgGODaBXKKFTFQMo7QUGPS8yrarXWk4mcu+K/2jeMGLbg="
+      secure: <INSERT>
     secret_access_key:
-      secure: "kLKELroXkCXWQvew6LO6ASLPd1Hyv0Cdf8eqeb3KdjLeLKltSTH5EGM5GDdsjquu6cs0QqZ4OCzmsphui4hjd9f9wngfxF2/WGaEgZIKP/H6R42sKI7reJZoBw39JGob6nM7itFcROKp4mZ1epMhwQ0p273/3rYBDX8363ql2OI="
+      secure: <INSERT>
     bucket: ds-server-artifacts
     skip_cleanup: true
     acl: public_read
@@ -41,7 +41,7 @@ deploy:
   - provider: releases
     skip_cleanup: true
     api_key:
-      secure: "OUWX8skE724OJBJCxRqDb822qJvWjshf2L2aYcAYO1n2D6VPHpLy8aVLbc8vS3wWiVD7H0L2C1GD1qKLQd4iVj0bfnzT1Q5nG1HoarPMwpOAqdhZ+91vO21oyKH1gkWhxoyYx5/QAZmiw4We9w2w6tHPiqMsrMAeRRYp+41V0EM="
+      secure: <INSERT>
     file_glob: true
     file:
       - "build/*.tar.gz"
