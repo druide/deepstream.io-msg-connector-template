@@ -1,8 +1,16 @@
-language: node_js
-
 env:
   global:
     - CXX=g++-4.8
+
+# Do not insert any code under here without making sures it's in publishingtest first
+language: node_js
+
+plugins:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - g++-4.8
 
 node_js:
   - "stable"
@@ -14,20 +22,17 @@ matrix:
       os: osx
 
 script:
-  - npm test
-
-after_script:
-  - "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
-
-before_deploy:
-  - chmod 555 scripts/package.sh && scripts/package.sh
+  - npm run test
+  - curl -o package.sh -L https://raw.githubusercontent.com/deepstreamIO/deepstream.io-connector-publishingtest/master/scripts/package.sh
+  - chmod 555 package.sh
+  - ./package.sh
 
 deploy:
   - provider: s3
     access_key_id:
-      secure: REPLACE_ME
+      secure: "jfxhIXQM9n6TG5kRvPmKeozaQLwal92yWomXYEd7MjS1XKMYYhUCvbxW5+fg4GBgivfgoKdhKn7oYjP2zVDjQqxgGZ4yHCsRKGHPzlrbz41aSi4T9aCtcV/Tv2hyGIvgGODaBXKKFTFQMo7QUGPS8yrarXWk4mcu+K/2jeMGLbg="
     secret_access_key:
-      secure: REPLACE_ME
+      secure: "kLKELroXkCXWQvew6LO6ASLPd1Hyv0Cdf8eqeb3KdjLeLKltSTH5EGM5GDdsjquu6cs0QqZ4OCzmsphui4hjd9f9wngfxF2/WGaEgZIKP/H6R42sKI7reJZoBw39JGob6nM7itFcROKp4mZ1epMhwQ0p273/3rYBDX8363ql2OI="
     bucket: ds-server-artifacts
     skip_cleanup: true
     acl: public_read
@@ -36,7 +41,7 @@ deploy:
   - provider: releases
     skip_cleanup: true
     api_key:
-      secure: REPLACE_ME
+      secure: "OUWX8skE724OJBJCxRqDb822qJvWjshf2L2aYcAYO1n2D6VPHpLy8aVLbc8vS3wWiVD7H0L2C1GD1qKLQd4iVj0bfnzT1Q5nG1HoarPMwpOAqdhZ+91vO21oyKH1gkWhxoyYx5/QAZmiw4We9w2w6tHPiqMsrMAeRRYp+41V0EM="
     file_glob: true
     file:
       - "build/*.tar.gz"
@@ -44,9 +49,10 @@ deploy:
     on:
       tags: true
 
-plugins:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    packages:
-    - g++-4.8
+after_deploy:
+  - curl -o test.sh -L https://raw.githubusercontent.com/deepstreamIO/deepstream.io-connector-publishingtest/master/scripts/test.sh
+  - chmod 555 test.sh
+  - ./test.sh
+
+after_script:
+  - "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
