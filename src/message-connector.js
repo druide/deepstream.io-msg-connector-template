@@ -1,6 +1,7 @@
-var events = require( 'events' ),
-  util = require( 'util' ),
-  pckg = require( '../package.json' )
+var events = require('events')
+var util = require('util')
+var pckg = require('../package.json')
+var zmq = require('zmq')
 
 /**
  * MessageConnectors allow deepstream instances to communicate with each other.
@@ -27,12 +28,44 @@ var events = require( 'events' ),
  *
  * @constructor
  */
-var MessageConnector = function( config ) {
+var MessageConnector = function (config) {
+  var self = this
   this.isReady = false
   this.name = pckg.name
   this.version = pckg.version
+
+  this._sender = config.serverName || (Math.random() * 10000000000000000000).toString(36)
+  this.pubSock = zmq.socket('pub')
+  this.pubSock.bindSync(config.pubAddress)
+
+  this.subSock = zmq.socket('sub')
+  if (config.subAddress instanceof Array) {
+    config.subAddress.forEach(function (subAddress) {
+      self.subSock.connect(subAddress)
+    })
+  } else {
+    this.subSock.connect(config.subAddress)
+  }
+
+  this.subSock.on('message', function (topic, msg) {
+    var message
+    try {
+      message = JSON.parse(msg)
+    } catch (e) {
+      self.emit('error', 'message parse error ' + e.toString())
+    }
+    if (!message || !message._s || message._s === self._sender) {
+      return
+    }
+    self.emit(topic, message)
+  })
+
+  process.nextTick(function () {
+    self.isReady = true
+    self.emit('ready')
+  })
 }
-util.inherits( MessageConnector, events.EventEmitter )
+util.inherits(MessageConnector, events.EventEmitter)
 
 /**
  * Unsubscribes a function as a listener for a topic.
@@ -49,7 +82,11 @@ util.inherits( MessageConnector, events.EventEmitter )
  * @public
  * @returns {void}
  */
-MessageConnector.prototype.unsubscribe = function( topic, callback ) {
+MessageConnector.prototype.unsubscribe = function (topic, callback) {
+  this.removeListener(topic, callback)
+  if (!this.listeners(topic).length) {
+    this.subSock.unsubscribe(topic)
+  }
 }
 
 /**
@@ -65,7 +102,11 @@ MessageConnector.prototype.unsubscribe = function( topic, callback ) {
  * @public
  * @returns {void}
  */
-MessageConnector.prototype.subscribe = function( topic, callback ) {
+MessageConnector.prototype.subscribe = function (topic, callback) {
+  this.on(topic, callback)
+  if (this.listeners(topic).length === 1) {
+    this.subSock.subscribe(topic)
+  }
 }
 
 /**
@@ -86,7 +127,17 @@ MessageConnector.prototype.subscribe = function( topic, callback ) {
  * @public
  * @returns {void}
  */
-MessageConnector.prototype.publish = function( topic, message ) {
+MessageConnector.prototype.publish = function (topic, message) {
+  message._s = this._sender
+
+  var msg
+  try {
+    msg = JSON.stringify(message)
+  } catch (e) {
+    this.emit('error', e.toString())
+  }
+
+  this.pubSock.send([topic, msg])
 }
 
 module.exports = MessageConnector
