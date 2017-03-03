@@ -140,4 +140,20 @@ MessageConnector.prototype.publish = function (topic, message) {
   this.pubSock.send([topic, msg])
 }
 
+/**
+ * Connect to deepstream instance on runtime
+ * @param {String} address
+ */
+MessageConnector.prototype.addPeer = function (address) {
+  this.subSock.connect(address)
+}
+
+/**
+ * Disconnect from deepstream instance
+ * @param  {String} address
+ */
+MessageConnector.prototype.removePeer = function (address) {
+  this.subSock.disconnect(address)
+}
+
 module.exports = MessageConnector
