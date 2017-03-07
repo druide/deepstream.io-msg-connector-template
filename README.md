@@ -11,17 +11,8 @@ plugins:
   message:
     name: zmq
     options:
-      pubAddress: 'tcp://127.0.0.1:3001',
-      subAddress: 'tcp://127.0.0.1:3002'
-```
-
-```yaml
-plugins:
-  message:
-    name: zmq
-    options:
-      pubAddress: 'tcp://127.0.0.1:3001',
-      subAddress:
+      address: 'tcp://127.0.0.1:3001',
+      peers:
         - 'tcp://127.0.0.1:3002'
         - 'tcp://127.0.0.1:3003'
 ```
@@ -32,8 +23,8 @@ var Deepstream = require('deepstream.io'),
     server = new Deepstream();
 
 server.set('messageConnector', new ZMQConnector({
-  pubAddress: 'tcp://127.0.0.1:3001',
-  subAddress: 'tcp://127.0.0.1:3002' 
+  address: 'tcp://127.0.0.1:3001',
+  peers: ['tcp://127.0.0.1:3002']
 }));
 
 server.start();
@@ -49,8 +40,8 @@ var server = new DeepstreamServer({
     message: {
         name: 'zmq',
         options: {
-            pubAddress: 'tcp://127.0.0.1:3001',
-            subAddress: 'tcp://127.0.0.1:3002'
+            address: 'tcp://127.0.0.1:3001',
+            peers: ['tcp://127.0.0.1:3002']
         }
     }
   }

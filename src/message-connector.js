@@ -36,15 +36,16 @@ var MessageConnector = function (config) {
 
   this._sender = config.serverName || (Math.random() * 10000000000000000000).toString(36)
   this.pubSock = zmq.socket('pub')
-  this.pubSock.bindSync(config.pubAddress)
+  this.pubSock.bindSync(config.address)
+  this._address = config.address
 
   this.subSock = zmq.socket('sub')
-  if (config.subAddress instanceof Array) {
-    config.subAddress.forEach(function (subAddress) {
-      self.subSock.connect(subAddress)
+  if (config.peers instanceof Array) {
+    config.peers.forEach(function (peer) {
+      if (peer !== self._address) self.subSock.connect(peer)
     })
-  } else {
-    this.subSock.connect(config.subAddress)
+  } else if (config.peers) {
+    this.emit('error', 'Invalid peers array')
   }
 
   this.subSock.on('message', function (topic, msg) {
@@ -134,7 +135,7 @@ MessageConnector.prototype.publish = function (topic, message) {
   try {
     msg = JSON.stringify(message)
   } catch (e) {
-    this.emit('error', e.toString())
+    return this.emit('error', e.toString())
   }
 
   this.pubSock.send([topic, msg])
@@ -145,7 +146,7 @@ MessageConnector.prototype.publish = function (topic, message) {
  * @param {String} address
  */
 MessageConnector.prototype.addPeer = function (address) {
-  this.subSock.connect(address)
+  if (address !== this._address) this.subSock.connect(address)
 }
 
 /**
@@ -153,7 +154,7 @@ MessageConnector.prototype.addPeer = function (address) {
  * @param  {String} address
  */
 MessageConnector.prototype.removePeer = function (address) {
-  this.subSock.disconnect(address)
+  if (address !== this._address) this.subSock.disconnect(address)
 }
 
 module.exports = MessageConnector
